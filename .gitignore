@@ -1,0 +1,81 @@
+# https://www.atlassian.com/git/tutorials/saving-changes/gitignore
+
+# Local:
+/_backup
+/assets
+/bin
+/data
+/docs-build
+/docs-src
+/etc
+/include
+/lib
+/logic
+/notebooks
+/out
+/res
+/share
+/src-full-backup
+/src-tmp
+/tmp
+/tmp-rt
+/todo
+/work
+/cheat-sheets.txt
+/commit.txt
+/cp-to-pkg
+/geckodriver.log
+/is-root
+/mk-notebooks-backup
+/mk-src-backup
+/pip-selfcheck.json
+/preamble.txt
+/pyvenv.cfg
+/setup.cfg
+/todo.txt
+
+# Python:
+*.pyc
+__pycache__/
+/dist/
+/*.egg-info
+
+# Binary and local output files:
+/src/**/*.pickle.gz
+/src/**/*.pickle
+/src/**/*.sqlite3
+/src/**/*.sqlite3-shm
+/src/**/*.sqlite3-wal
+/src/**/*.graffle
+/src/**/*.diag
+/src/**/*.png
+
+# Dev:
+#/src/dev
+/src/tmp
+
+# Sphinx docs:
+#/docs/_sources
+.doctrees/
+.buildinfo
+
+# LaTeX:
+/src/**/*.gz
+/src/**/*.pdf
+/src/**/*.out
+/src/**/*.log
+/src/**/*.aux
+/src/**/*.tex
+
+# R:
+.RData
+.Rhistory
+
+# MacOS:
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
