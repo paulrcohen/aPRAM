@@ -103,8 +103,8 @@ class WN ():
         else:
             return expr
 
-# # # #%%
-# # # ####################  Testing ##########################
+# # #%%
+# # ####################  Testing ##########################
 
 # import numpy as np
 # from numpy.random import default_rng
@@ -128,7 +128,7 @@ class WN ():
 # print (pop.p.val) # 4.2
 
 
-# ## We can define the updater in the param definition.
+## We can define the updater in the param definition.
 # ## This says pop.q will update to have twice the value of pop.p
 # pop.make_param('q',2, WN(operator.mul, pop.p, 2))
 # print(pop.q.val)

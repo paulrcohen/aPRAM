@@ -38,9 +38,9 @@ class Sim ():
         else:
             raise AttributeError ("sim_phase must be 'loop' or 'setup'")
 
-    def make_act (self, name, fn, sim_phase = None):
+    def make_act (self, name, action, condition = None, alt_action = None, sim_phase = None):
         """ This creates an Act object and registers it with the simulator """
-        act = Act(fn)
+        act = Act(action,condition,alt_action)
         self.__dict__.update({name:act})
         if sim_phase == 'loop':
             self.loop_acts.append(act)

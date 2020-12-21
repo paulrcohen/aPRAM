@@ -76,8 +76,16 @@ pop.make_cohort('P', (lambda: np.ones(pop.size).astype(bool)), dynamic=False)
 
 sim.make_act (
     name = 'update_weather',
-    fn = (lambda : w.update_weather(pop.date.val)),
+    action = (lambda : w.update_weather(pop.date.val)),
     sim_phase = 'loop'
+    )
+
+sim.make_act (
+    name       = 'foo',
+    condition  = WN(op.lt, pop.date, 30),
+    action     = WN(print,"pop.date.val < 30"),
+    alt_action = WN(print,"pop.date.val ≥ 30"),
+    sim_phase  = 'loop'
     )
 
 
@@ -113,13 +121,6 @@ sim.make_mod(
     )
 
 
-# sim.make_act (
-#     name = 'diagnostics',
-#     fn = (lambda : print (f"date: {pop.date.val}, w.avg_rain: {w.avg_rain[:3]}    pop.avg_rain: {pop.avg_rain.val[:3]}")),
-#     sim_phase = 'loop'
-#     )
-
-
 # record data with this function
 def probe_fn (day):
     record = [day, pop.Predicted_Y1_tonnage.val]
@@ -128,7 +129,7 @@ def probe_fn (day):
 
 probe_labels = ['day','tonnage','flooded','chilled','two_croppings']
 
-sim.num_iterations  = 400
+sim.num_iterations  = 200
 sim.probe_labels    = probe_labels
 sim.probe_fn        = probe_fn
 

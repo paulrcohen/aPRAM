@@ -459,24 +459,40 @@ class Act ():
     simulation loop.  Whereas Columns and Params hold simulation state
     and are updated by Mod ColMods and Param update_fns, respectively,
     Acts are not intended to hold any state information but simply make
-    things -- particularly non-sim processes -- happen.  For example, an Act
-    could call a weather oracle to update its average rainfall; in this case,
-    the weather oracle holds state, but the Act causes it to update its state.
-    Acts are always lambda expressions and the only thing a sim does with an Act
-    is evaluate it.
+    things -- particularly non-sim processes -- happen.  Acts are also
+    useful for printing diagnostic information when debugging sims.
 
-    Acts are also useful for printing diagnostic information when debugging sims.
+    Acts require an action0 argument and optionally a condition and action1
+    argument, providing rudimentary if-then-else control.
+
     """
-    def __init__(self,fn):
+    def __init__(self, action0, condition=None, action1 = None):
+        self.condition = self.make_callable(condition)
+        self.action0 = self.make_callable(action0)
+        self.action1 = self.make_callable(action1)
 
-        self.aPRAM_class = 'Act'
-
-        if not callable(fn):
-            raise ValueError ("Acts must be WN functions, methods or lambda expressions.")
-        self.fn = fn
+    def make_callable (self,expr):
+        if expr is None:
+            return None
+        elif callable (expr):
+            return (expr)
+        elif hasattr(expr,'sexpr'):
+            return expr.eval
+        else:
+            raise TypeError ("Act {self.name} condition/action must be callable or a WN expression")
 
     def do_act (self):
-        self.fn()
+        if self.condition is None:
+            self.action0()
+        else:
+            if self.condition():
+                self.action0()
+            else:
+                if self.action1 is not None:
+                    self.action1()
+
+
+
 
 
 
