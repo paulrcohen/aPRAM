@@ -475,7 +475,7 @@ class Act ():
         if expr is None:
             return None
         elif callable (expr):
-            return (expr)
+            return expr
         elif hasattr(expr,'sexpr'):
             return expr.eval
         else:
