@@ -457,13 +457,13 @@ class Act ():
     """
     Acts are arbitrary chunks of code that run at setup or in the main
     simulation loop.  Whereas Columns and Params hold simulation state
-    and are updated by Mod ColMods and Param update_fns, respectively,
-    Acts are not intended to hold any state information but simply make
-    things -- particularly non-sim processes -- happen.  Acts are also
-    useful for printing diagnostic information when debugging sims.
+    and are updated by Mods and Param update_fns, respectively, Acts are
+    not intended to hold any state information but simply make things --
+    particularly non-sim processes -- happen.  Acts are also useful for
+    printing diagnostic information when debugging sims.
 
     Acts require an action0 argument and optionally a condition and action1
-    argument, providing rudimentary if-then-else control.
+    argument, providing 'if condition then action0 else action1' control.
 
     """
     def __init__(self, action0, condition=None, action1 = None):

@@ -40,7 +40,7 @@ class Sim ():
 
     def make_act (self, name, action, condition = None, alt_action = None, sim_phase = None):
         """ This creates an Act object and registers it with the simulator """
-        act = Act(action,condition,alt_action)
+        act = Act(action, condition, alt_action)
         self.__dict__.update({name:act})
         if sim_phase == 'loop':
             self.loop_acts.append(act)
@@ -122,3 +122,8 @@ class Sim ():
                  *[f"{d.describe(level+1)}\n" for d in self.loop_acts]
                 ]
             ))
+
+def foo (x,y,z = None):
+    return x * y * z
+
+foo (x = 1, y = 2, z=1)
