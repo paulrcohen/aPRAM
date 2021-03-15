@@ -37,6 +37,7 @@ class Sim ():
             self.setup_mods.append(mod)
         else:
             raise AttributeError ("sim_phase must be 'loop' or 'setup'")
+    
 
     def make_act (self, name, action, condition = None, alt_action = None, sim_phase = None):
         """ This creates an Act object and registers it with the simulator """
@@ -56,8 +57,20 @@ class Sim ():
         for mod in mods: mod.do_mods()
         for cohort in cohorts: cohort.select()
 
+    # def run_setup (self):
+    #     self.inner_loop (self.setup_acts, self.setup_mods, *self.static_cohorts, *self.dynamic_cohorts)
+
     def run_setup (self):
-        self.inner_loop (self.setup_acts, self.setup_mods, *self.static_cohorts, *self.dynamic_cohorts)
+        print (self.static_cohorts, self.dynamic_cohorts)
+        for mod in self.setup_mods:
+            if mod.mod_selector is not None:
+                mod.mod_selector.make_initial_selected()
+            mod.do_mods()
+        for cohort in self.static_cohorts: cohort.select()
+        for cohort in self.dynamic_cohorts: cohort.select()
+        for mod in self.loop_mods:
+            if mod.mod_selector is not None:
+                mod.mod_selector.make_initial_selected()
 
     def one_iteration (self):
 
@@ -123,7 +136,3 @@ class Sim ():
                 ]
             ))
 
-def foo (x,y,z = None):
-    return x * y * z
-
-foo (x = 1, y = 2, z=1)

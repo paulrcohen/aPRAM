@@ -7,6 +7,7 @@ Created on Thu Oct 29 15:12:09 2020
 """
 from types import SimpleNamespace
 import numpy as np
+import pandas as pd
 import aPRAM_utils as utils
 from aPRAM_classes import Cohort, Column, Param, Counter
 
@@ -18,6 +19,19 @@ class Pop(SimpleNamespace):
         self.columns = []
         self.static_cohorts = []
         self.dynamic_cohorts = []
+
+    def make_pop_from_csv (self,file):
+        """
+        Reads a csv file and makes an aPRAM Column for each column in the
+        file. This assumes that the first row in th csv file is the column
+        headers. I'd like to be able to coerce columns into efficient numpy
+        data types but numpy isn't letting me because some values are NaNs and
+        numpy seems to require that arrays that include NaNs are float64.
+        """
+        data = pd.read_csv(file)
+        for colname in data.columns:
+            self.make_column(colname,np.array(data[colname]))
+
 
     def make_column (self,name,values):
         column = Column(name,values)

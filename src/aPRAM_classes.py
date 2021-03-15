@@ -207,6 +207,137 @@ class Counter ():
             f'{indent1}Name {self.name}\n'
             f'{indent1}Val: {self.val}'
             )
+# #______________________________________________________________________________
+
+
+# class Mod_Selector ():
+#     """
+#     A Mod can have k alternative mod_lists. When k > 1 then a Mod_Selector is
+#     used to assign one mod_list to each agent in a cohort. A Mod_Selector
+#     returns a multinomial distribution self.selected over the integers
+#     0 ... k-1 with probabilities p0...pk-1.  The argument prob_spec must be a
+#     list of k probabilities or a sexpr that returns a list of k probabilities.
+
+#     A Mod_Selector needs a cohort argument because 1) the size of self.selected
+#     must equal the cohort size, 2) the select method needs to know whether the
+#     cohort size has changed.
+#     """
+
+#     def __init__(self, cohort, prob_spec, k, report=False):
+
+#         from aPRAM_settings import pop # need this because we need pop.size
+#         self.aPram_class = 'Mod_Selector'
+
+#         self.cohort = cohort
+#         self.prob_spec = prob_spec
+#         self.k  = k
+#         self.n0 = cohort.size # n0 is the last value of cohort size
+#         self.n1 = cohort.size # n1 is the current value of cohort_size
+#         self.report = report
+
+#         """ prob_spec must be either a list of probabilities, a Param whose
+#         value is a list of probabilities, or a callable -- a method or lambda or
+#         function -- that returns a list of probabilities. """
+
+#         if hasattr(self.prob_spec,'sexpr'):  # it's a WN expression
+#             self.prob_fn = (lambda : self.prob_spec.eval())
+#             self.probs = utils.check_probs(self.prob_fn())
+
+#         elif callable(self.prob_spec):
+#             self.prob_fn = prob_spec
+#             self.probs = utils.check_probs(self.prob_fn())
+
+#         else:
+#             self.prob_fn = None
+#             self.probs = utils.check_probs(prob_spec)
+
+
+
+#         """ Get the initial self.selected. At this point, the cohort size could
+#         be zero, or very small, which will cause problems if later we try to resample
+#         from self.selected. Furthermore, the initial cohort size might be tiny, which
+#         again would cause infidelity to probabilities when we resample.  A possibly
+#         wasteful solution is to have self.selected_initial be the size of the population
+#         and to resample from it.
+#         """
+
+#         self.selected_initial = rng.choice(
+#             self.k,           # integers from 0...k-1
+#             p = self.probs,   # k probabilities
+#             size = pop.size,
+#             replace=True).astype(np.int8)
+
+#         self.selected = rng.choice(self.selected_initial, size = self.n1, replace = True)
+
+#         if self.report: print (f"In Mod_Selector: probs: {self.probs}, self.selected: {self.selected[:20]}...\n ")
+
+#     def select (self):
+#         """ Rebuilding a multinomial distribution self.selected is the most
+#         expensive operation in aPRAM, so it's worth being careful about when to do it:
+
+#             • If self.probs is static, meaning it is defined as a list of
+#             probabilities when the Mod_Selector is defined, then we only build
+#             self.selected once. We might choose to roll self.selected before
+#             selection to ensure that agents can have different choices on
+#             subsequent invocations of a Mod.
+
+#             • If self.probs is static but the cohort size changes to n, and
+#             self.selected exists, then we can resample with replacement to get a
+#             sample of n from self.selected.  This is much cheaper than rebuilding
+#             self.selected when n is relatively small, but is cheaper even when
+#             resampling a sample of the size of the original self.selected.
+
+#             • Rebuilding self.selected is necessary only when self.probs is dynamic,
+#             that is, a callable that needs to be updated at each time step.
+
+#         Defaults:  If self.probs is static, build self.selected and 1) if the
+#         cohort size changes, resample from self.selected, otherwise 2) roll self.selected.
+#         If self.probs is dynamic, rebuild self.selected.
+#         """
+#         self.n1 = self.cohort.size  # get current cohort size
+
+#         if self.prob_fn is None: # probabilities are static, so roll or resample M
+#             if self.report: print(f"Static probs {self.probs} n0 = {self.n0}, n1 = {self.n1}")
+
+#             if self.n0 == self.n1: # last cohort size equals current cohort size
+#                 self.roll() # no need to resample from M, simply roll it
+#                 if self.report: print ("Rolling self.selected\n")
+
+#             else:
+#                 self.selected = rng.choice(self.selected_initial, size = self.n1, replace = True)
+#                 # construct a new self.selected for new sample size by resampling from the previous one
+#                 if self.report: print ("Resampling self.selected\n")
+
+#         else:                    # probabilities are dynamic
+#             self.probs = utils.check_probs(self.prob_fn())  # check that the changed probs are legit
+#             #old: self.probs = utils.check_probs(ap.ev(self.prob_fn))  # check that the changed probs are legit
+#             self.selected = rng.choice(self.k, p = self.probs, size = self.n1, replace=True).astype(np.int8)
+#             # int8 is much faster and we won't have > 256 modifications!
+#             if self.report: print (f"Rebuilding self.selected, probs = {self.probs}\n")
+
+#         # set n0 to n1 so we can track whether sample size changes next time
+#         self.n0 = self.n1
+
+#     def roll (self):
+
+#         """ Instead of reconstructing the selector with self.select it is much
+#         faster to roll the selector, ensuring that each agent gets a new mod_list
+#         on each time step, but not changing the selector itself."""
+
+#         self.selected = np.roll(self.selected, shift=rng.integers(10))
+
+#     def describe (self,level=0):
+#         pp = pprint.PrettyPrinter(indent = 3 * level)
+#         indent0 = '   ' * level
+#         indent1 = '   ' * (level + 1)
+#         return (
+#             f'{indent0}Mod_Selector:\n'
+#             f'{indent1}cohort: {self.cohort.name}\n'
+#             f'{indent1}prob_spec: {pprint.pformat(self.prob_spec)}\n'
+#             f'{indent1}prob_fn: {pprint.pformat(self.prob_fn)}\n'
+#             f'{indent1}probs: {self.probs}'
+#             )
+
 #______________________________________________________________________________
 
 
@@ -234,23 +365,28 @@ class Mod_Selector ():
         self.n0 = cohort.size # n0 is the last value of cohort size
         self.n1 = cohort.size # n1 is the current value of cohort_size
         self.report = report
-
+        
+    
+    def make_initial_selected (self):
+        
         """ prob_spec must be either a list of probabilities, a Param whose
         value is a list of probabilities, or a callable -- a method or lambda or
         function -- that returns a list of probabilities. """
+        
+        from aPRAM_settings import pop # need this because we need pop.size
+        print (f"pop.size: {pop.size}")
 
         if hasattr(self.prob_spec,'sexpr'):  # it's a WN expression
             self.prob_fn = (lambda : self.prob_spec.eval())
             self.probs = utils.check_probs(self.prob_fn())
 
         elif callable(self.prob_spec):
-            self.prob_fn = prob_spec
+            self.prob_fn = self.prob_spec
             self.probs = utils.check_probs(self.prob_fn())
 
         else:
             self.prob_fn = None
-            self.probs = utils.check_probs(prob_spec)
-
+            self.probs = utils.check_probs(self.prob_spec)
 
 
         """ Get the initial self.selected. At this point, the cohort size could
